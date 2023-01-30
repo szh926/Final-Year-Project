@@ -46,6 +46,28 @@ byte lock[8] = {
   B00000
 };
 
+byte leftArrow[8] = {
+  B00010,
+  B00110,
+  B01110,
+  B11110,
+  B01110,
+  B00110,
+  B00010,
+  B00000
+};
+
+byte rightArrow[8] = {
+  B01000,
+  B01100,
+  B01110,
+  B01111,
+  B01110,
+  B01100,
+  B01000,
+  B00000
+};
+
 char array1[] = "Hello, World!               "; // can set strings as arrays to print on LCD
 
 void setup() {
@@ -53,6 +75,8 @@ void setup() {
   lcd.begin(16,2); //initialise LCD screen dimensions
   lcd.createChar(0,smile); 
   lcd.createChar(1,lock);
+  lcd.createChar(2,leftArrow);
+  lcd.createChar(3,rightArrow);
 }
 
 void loop() {
@@ -85,6 +109,12 @@ void loop() {
 
   lcd.setCursor(9,1);
   lcd.write(1);
+  delay(3000);
+
+  lcd.setCursor(0,1);
+  lcd.write(2);
+  lcd.setCursor(15,1);
+  lcd.write(3);
   delay(3000);
 
   lcd.clear();
