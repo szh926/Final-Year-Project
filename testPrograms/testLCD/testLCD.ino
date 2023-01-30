@@ -2,7 +2,7 @@
 
 LiquidCrystal lcd(1, 2, 4, 5, 6, 7); // rs, en, d4, d5, d6, d7
 
-/*Test LCD Screen if you suspect a fault.
+/*This code can be used to test an LCD Screen if you suspect a fault.
  * Setup: (Referance: https://arduinogetstarted.com/tutorials/arduino-lcd)
  *  VSS -> GND
  *  VDD -> 5V

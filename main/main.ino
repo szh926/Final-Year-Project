@@ -1,4 +1,7 @@
 #include <LiquidCrystal.h>
+
+/***Pin and Variable Setup**********************************************************************/
+
 LiquidCrystal lcd(1, 2, 4, 5, 6, 7); // rs, en, d4, d5, d6, d7
 
 const byte leftPin = 10;
@@ -6,30 +9,63 @@ const byte selectPin = 11;
 const byte rightPin = 12;
 const byte backPin = 13;
 
-bool powerOff = false;
 String menuItems[4] = {"Create Clone", "Use Clone", "Edit Clones", "Power Off"};
+String clonedCards[] = {"Card 1", "Card 2", "Card 3"};
 
-void menuFunctions(int menu, byte left, byte right) {
-  if(menu == 1) {
-    //lcd.clear();
-    //lcd.setCursor(0,0);
-    //lcd.print("Create Clone");
-  }
-  if(menu == 2){
-    //lcd.clear();
-    //lcd.setCursor(0,0);
-    //lcd.print("Use Clone");
-  }
-  if(menu == 3){
-    //lcd.clear();
-    //lcd.setCursor(0,0);
-    //lcd.print("Edit Clones");
-  }
-  if(menu == 4){
-    //exit;
+template< typename T, size_t NumberOfSize > 
+size_t arraySize (T (&) [NumberOfSize]){ return NumberOfSize; }
+int numberOfItems = arraySize(menuItems) - 1;
+int currentIndex = 0;
+int previousIndex = 1;
+byte changeOfState = 0;
+unsigned long previousMillis = millis();
+
+/***Functions***********************************************************************************/
+
+//Used when menu option is selected
+void menuFunctions(int menu) {
+  switch(menu){
+    //Create a Clone
+    case 0:
+      lcd.clear();
+      lcd.setCursor(1,0);
+      lcd.print("Present a Card");
+      lcd.setCursor(1,1);
+      lcd.print("Below to Clone");
+      while(digitalRead(backPin) != LOW){
+
+      }
+      break;
+    //Power Off Arduino  
+    case 3:
+      break;
+    //Use a Clone or Edit a Clone  
+    default:
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("Select Clone:");
+
+      int temp = numberOfItems;
+      numberOfItems = arraySize(clonedCards) - 1;
+      while(digitalRead(backPin) != LOW){
+        
+      }
+      numberOfItems = temp;
+      break;
   }
 }
 
+//Used to rename or delete selected clone
+void editSelectedClone(int clone){
+  
+}
+
+//Used to set up clone for using
+void useSelectedClone(int clone){
+  
+}
+
+/***Special Characters**************************************************************************/
 byte leftArrow[8] = {
   B00010,
   B00110,
@@ -52,15 +88,7 @@ byte rightArrow[8] = {
   B00000
 };
 
-template< typename T, size_t NumberOfSize > 
-size_t arraySize (T (&) [NumberOfSize]){ return NumberOfSize; }
-int numberOfMenuItems = arraySize(menuItems) - 1;
-int currentIndex = 0;
-int previousIndex = 1;
-byte changeOfState = 0;
-unsigned long previousMillis = millis();
-
-/***********************************************************************************/
+/***Main Code**********************************************************************************/
 
 void setup() {
   // put your setup code here, to run once:
@@ -88,54 +116,60 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  //while(powerOff != true){
-    lcd.setCursor(0,0);
-    lcd.print("Menu Select:");
-    //lcd.setCursor(0,1);
+  // put your main code here, to run repeatedly
+  lcd.setCursor(0,0);
+  lcd.print("Menu Select:");
 
-    //When right button is pressed, move to the next menu option
-    if(digitalRead(rightPin) == LOW && changeOfState == 0){
-      ++currentIndex;
-      //Prevents index being higher than the array size
-      if(currentIndex > numberOfMenuItems ){
-        currentIndex = numberOfMenuItems;
-      }
-      changeOfState = 1;
-      previousMillis = millis();
+  //When right button is pressed, move to the next menu option
+  if(digitalRead(rightPin) == LOW && changeOfState == 0){
+    ++currentIndex;
+    //Prevents index being higher than the array size
+    if(currentIndex > numberOfItems ){
+      currentIndex = numberOfItems;
     }
-    //When left button is pressed, move to the previous menu option
-    else if(digitalRead(leftPin) == LOW && changeOfState == 0){
-      currentIndex--;
-      //Prevents the Index being less than the array size
-      if(currentIndex < 0){
-        currentIndex = 0;
-      }
-      changeOfState = 1;
-      previousMillis = millis();
+    changeOfState = 1;
+    previousMillis = millis();
+  }
+  //When left button is pressed, move to the previous menu option
+  else if(digitalRead(leftPin) == LOW && changeOfState == 0){
+    currentIndex--;
+    //Prevents the Index being less than the array size
+    if(currentIndex < 0){
+      currentIndex = 0;
     }
+    changeOfState = 1;
+    previousMillis = millis();
+  }
+
+  //When the select button is pressed, select that option in the menu and continue the code
+  if(digitalRead(selectPin) == LOW && changeOfState == 0){
+    menuFunctions(currentIndex);
+    changeOfState = 1;
+    previousMillis = millis();
+
+    currentIndex = 0;
+    previousIndex = 1;
+  }
     
-    //Display the current menu item choice before selection
-    if(currentIndex != previousIndex){ 
-      lcd.clear();
-      if(currentIndex != 0){
-        lcd.setCursor(0,1);
-        lcd.write(1);
-      }
-      if(currentIndex != numberOfMenuItems){
-        lcd.setCursor(15,1);
-        lcd.write(2); 
-      }
-      lcd.setCursor(2,1);
-      lcd.print(menuItems[currentIndex]);
-      menuFunctions(currentIndex + 1, 0, 0);
-      previousIndex = currentIndex;
+  //Display the current menu item choice before selection
+  if(currentIndex != previousIndex){ 
+    lcd.clear();
+    if(currentIndex != 0){
+      lcd.setCursor(0,1);
+      lcd.write(1);
     }
+    if(currentIndex != numberOfItems){
+      lcd.setCursor(15,1);
+      lcd.write(2); 
+    }
+    lcd.setCursor(2,1);
+    lcd.print(menuItems[currentIndex]);
+    previousIndex = currentIndex;
+  }
     
-    //Uses elapsed time to reset the button state. This means code isn't repeated from the user holding the button down.
-    if(millis() - previousMillis >= 400){
-      previousMillis = millis();
-      changeOfState = 0;
-    }
-  //} 
+  //Uses elapsed time to reset the button state. This means code isn't repeated from the user holding the button down.
+  if(millis() - previousMillis >= 400){
+    previousMillis = millis();
+    changeOfState = 0;
+  }
 }
