@@ -1,3 +1,6 @@
+#include <MFRC522.h>
+#include <MFRC522Extended.h>
+#include <SPI.h>
 #include <LiquidCrystal.h>
 #include <avr/sleep.h>
 
@@ -37,12 +40,15 @@ void menuFunctions(int menu) {
 
       }
       break;
-    //Power Off Arduino  
-    case 3:
-      //sleep_enable();
-      //attachInterrupt(backPin, setup, LOW);
-      //set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-      //sleep_cpu();
+    //Power Off Arduino - technically putting it into sleep mode
+    case 3: 
+      sleep_enable();
+      attachInterrupt(digitalPinToInterrupt(backPin), setup, LOW);
+      set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+      sleep_cpu();
+      sleep_disable();
+      detachInterrupt(digitalPinToInterrupt(backPin));      
+      setup();
       break;
     //Use a Clone or Edit a Clone  
     default:
@@ -161,6 +167,7 @@ void setup() {
   // put your setup code here, to run once:
   sleep_disable();
   detachInterrupt(backPin);
+  
   //Initialise button pins
   pinMode(leftPin, INPUT_PULLUP);
   pinMode(selectPin, INPUT_PULLUP);
