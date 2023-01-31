@@ -3,12 +3,12 @@
 
 /***Pin and Variable Setup**********************************************************************/
 
-LiquidCrystal lcd(1, 2, 4, 5, 6, 7); // rs, en, d4, d5, d6, d7
+LiquidCrystal lcd(A5, A4, A3, A2, A1, A0); // rs, en, d4, d5, d6, d7
 
-const byte leftPin = 10;
-const byte selectPin = 11;
-const byte rightPin = 12;
-const byte backPin = 13;
+const byte leftPin = 0;
+const byte selectPin = 1;
+const byte rightPin = 2;
+const byte backPin = 3;
 
 String menuItems[4] = {"Create Clone", "Use Clone", "Edit Clones", "Power Off"};
 String clonedCards[] = {"Card 1", "Card 2", "Card 3"};
@@ -46,19 +46,14 @@ void menuFunctions(int menu) {
       break;
     //Use a Clone or Edit a Clone  
     default:
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print("Select Clone:");
-      
       currentIndex = 0;
       previousIndex = 1;
-      int temp = numberOfItems;
       numberOfItems = arraySize(clonedCards) - 1;
+      
       while(digitalRead(backPin) != LOW){
         //Repeat of code in loop(), will look into efficency if time at end
         if(digitalRead(rightPin) == LOW && changeOfState == 0){
           ++currentIndex;
-          //Prevents index being higher than the array size
           if(currentIndex > numberOfItems ){
             currentIndex = numberOfItems;
           }
@@ -67,7 +62,6 @@ void menuFunctions(int menu) {
         }
         else if(digitalRead(leftPin) == LOW && changeOfState == 0){
           currentIndex--;
-          //Prevents the Index being less than the array size
           if(currentIndex < 0){
           currentIndex = 0;
           }
@@ -78,11 +72,21 @@ void menuFunctions(int menu) {
           changeOfState = 1;
           previousMillis = millis();
 
+          if(menu == 1) {
+            useSelectedClone(currentIndex);
+          }
+          else if(menu == 2) {
+            editSelectedClone(currentIndex);
+          }
+          
           currentIndex = 0;
           previousIndex = 1;
+          return;
         }
-        if(currentIndex != previousIndex){ 
-          //lcd.clear();
+        if(currentIndex != previousIndex){
+          lcd.clear();
+          lcd.setCursor(0,0);
+          lcd.print("Select Clone:");
           if(currentIndex != 0){
             lcd.setCursor(0,1);
             lcd.write(1);
@@ -97,7 +101,6 @@ void menuFunctions(int menu) {
        }
        if(millis() - previousMillis >= 400) timeReset();
       }
-      numberOfItems = temp;
       break;
   }
 }
@@ -110,12 +113,23 @@ void timeReset(){
 
 //Used to rename or delete selected clone
 void editSelectedClone(int clone){
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("editing clone");
+  lcd.setCursor(0,1);
+  lcd.print(clonedCards[clone]);
+  delay(5000);
   
 }
 
 //Used to set up clone for using
 void useSelectedClone(int clone){
-  
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("using clone");
+  lcd.setCursor(0,1);
+  lcd.print(clonedCards[clone]);
+  delay(5000);
 }
 
 /***Special Characters**************************************************************************/
@@ -197,10 +211,12 @@ void loop() {
 
   //When the select button is pressed, select that option in the menu and continue the code
   if(digitalRead(selectPin) == LOW && changeOfState == 0){
-    menuFunctions(currentIndex);
     changeOfState = 1;
     previousMillis = millis();
-
+    
+    menuFunctions(currentIndex);
+    
+    numberOfItems = arraySize(menuItems) - 1;
     currentIndex = 0;
     previousIndex = 1;
   }
