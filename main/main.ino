@@ -4,6 +4,8 @@
 #include <LiquidCrystal.h>
 #include <avr/sleep.h>
 
+#include "menuFunctions.h";
+
 /***Pin and Variable Setup**********************************************************************/
 
 LiquidCrystal lcd(A5, A4, A3, A2, A1, A0); // rs, en, d4, d5, d6, d7
@@ -13,7 +15,7 @@ const byte selectPin = 1;
 const byte rightPin = 2;
 const byte backPin = 3;
 
-String menuItems[4] = {"Create Clone", "Use Clone", "Edit Clones", "Power Off"};
+String menuItems[] = {"Create Clone", "Use Clone", "Create Copy", "Edit Clones", "Power Off"};
 String clonedCards[] = {"Card 1", "Card 2", "Card 3"};
 
 template< typename T, size_t NumberOfSize > 
@@ -25,91 +27,6 @@ byte changeOfState = 0;
 unsigned long previousMillis = millis();
 
 /***Functions***********************************************************************************/
-
-//Used when menu option is selected
-void menuFunctions(int menu) {
-  switch(menu){
-    //Create a Clone
-    case 0:
-      lcd.clear();
-      lcd.setCursor(1,0);
-      lcd.print("Present a Card");
-      lcd.setCursor(1,1);
-      lcd.print("Below to Clone");
-      while(digitalRead(backPin) != LOW){
-
-      }
-      break;
-    //Power Off Arduino - technically putting it into sleep mode
-    case 3: 
-      sleep_enable();
-      attachInterrupt(digitalPinToInterrupt(backPin), setup, LOW);
-      set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-      sleep_cpu();
-      sleep_disable();
-      detachInterrupt(digitalPinToInterrupt(backPin));      
-      setup();
-      break;
-    //Use a Clone or Edit a Clone  
-    default:
-      currentIndex = 0;
-      previousIndex = 1;
-      numberOfItems = arraySize(clonedCards) - 1;
-      
-      while(digitalRead(backPin) != LOW){
-        //Repeat of code in loop(), will look into efficency if time at end
-        if(digitalRead(rightPin) == LOW && changeOfState == 0){
-          ++currentIndex;
-          if(currentIndex > numberOfItems ){
-            currentIndex = numberOfItems;
-          }
-          changeOfState = 1;
-          previousMillis = millis();
-        }
-        else if(digitalRead(leftPin) == LOW && changeOfState == 0){
-          currentIndex--;
-          if(currentIndex < 0){
-          currentIndex = 0;
-          }
-          changeOfState = 1;
-          previousMillis = millis();
-        }
-        if(digitalRead(selectPin) == LOW && changeOfState == 0){
-          changeOfState = 1;
-          previousMillis = millis();
-
-          if(menu == 1) {
-            useSelectedClone(currentIndex);
-          }
-          else if(menu == 2) {
-            editSelectedClone(currentIndex);
-          }
-          
-          currentIndex = 0;
-          previousIndex = 1;
-          return;
-        }
-        if(currentIndex != previousIndex){
-          lcd.clear();
-          lcd.setCursor(0,0);
-          lcd.print("Select Clone:");
-          if(currentIndex != 0){
-            lcd.setCursor(0,1);
-            lcd.write(1);
-          }
-          if(currentIndex != numberOfItems){
-            lcd.setCursor(15,1);
-            lcd.write(2); 
-          }
-          lcd.setCursor(2,1);
-          lcd.print(clonedCards[currentIndex]);
-          previousIndex = currentIndex;
-       }
-       if(millis() - previousMillis >= 400) timeReset();
-      }
-      break;
-  }
-}
 
 //Used to reset the time and button state
 void timeReset(){
@@ -133,6 +50,15 @@ void useSelectedClone(int clone){
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("using clone");
+  lcd.setCursor(0,1);
+  lcd.print(clonedCards[clone]);
+  delay(5000);
+}
+
+void copySelectedClone(int clone){
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("copying clone");
   lcd.setCursor(0,1);
   lcd.print(clonedCards[clone]);
   delay(5000);
