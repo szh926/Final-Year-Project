@@ -1,6 +1,6 @@
-Link to Git Repository (HTTS): https://git.cs.bham.ac.uk/projects-2022-23/szh926
+Link to University Git Repository (HTTS): https://git.cs.bham.ac.uk/projects-2022-23/szh926
 
-Link to Git Reository (SSH): git@git.cs.bham.ac.uk:projects-2022-23/szh926.git 
+Link to University Git Reository (SSH): git@git.cs.bham.ac.uk:projects-2022-23/szh926.git 
 
 # Final-Year-Project :- RFID Tag Cloner
 This repository contains all code created for my final year project. This is an Arduino-based project.
